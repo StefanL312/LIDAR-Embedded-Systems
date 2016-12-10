@@ -1,0 +1,51 @@
+[Stack]
+FillEnabled=0
+OverflowWarningsEnabled=1
+WarningThreshold=90
+SpWarningsEnabled=1
+WarnLogOnly=1
+UseTrigger=1
+TriggerName=main
+LimitSize=0
+ByteLimit=50
+[StLinkDriver]
+CStepIntDis=_ 0
+LeaveTargetRunning=_ 0
+stlinkserialNo=34381767
+stlinkfoundProbes=
+[DebugChecksum]
+Checksum=-1844700216
+[Exceptions]
+StopOnUncaught=_ 0
+StopOnThrow=_ 0
+[CallStack]
+ShowArgs=0
+[Disassembly]
+MixedMode=1
+[watch_formats]
+Fmt0={W}42:LED_Register_Bits	1	0
+Fmt1={W}42:uxHighWaterMark	3	0
+[Log file]
+LoggingEnabled=_ 0
+LogFile=_ ""
+Category=_ 0
+[TermIOLog]
+LoggingEnabled=_ 0
+LogFile=_ ""
+[CallStackLog]
+Enabled=0
+[CallStackStripe]
+ShowTiming=1
+[Disassemble mode]
+mode=0
+[Breakpoints2]
+Bp0=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\Src\lidar\example.c}.55.3" 0 0 1 "" 0 "" 0
+Bp1=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Src\stm32f0xx_it.c}.124.3" 0 0 1 "" 0 "" 0
+Count=2
+[Aliases]
+A0=_ "C:\Users\Ruben\Dropbox\School\jaar4\1.2\lidarfirmware1.2\Drivers\CMSIS\Device\ST\STM32F0xx\Source\Templates\iar\startup_stm32f070x6.s" ""
+A1=_ "C:\Users\Ruben\Dropbox\School\jaar4\1.2\lidarfirmware1.2\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_pcd_ex.c" ""
+A2=_ "C:\Users\Ruben\Dropbox\School\jaar4\1.2\lidarfirmware1.2\Middlewares\ST\STM32_USB_Device_Library\Core\Src\usbd_core.c" "C:\Users\Ruben\Dropbox\School\jaar4\LIDAR\Software\Firmware\1.2\lidarfirmware1.2\Middlewares\ST\STM32_USB_Device_Library\Core\Src\usbd_core.c"
+A3=_ "C:\Users\Ruben\Dropbox\School\jaar4\1.2\lidarfirmware1.2\Src\main.c" ""
+Count=4
+SuppressDialog=1
