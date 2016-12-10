@@ -79,12 +79,16 @@ struct scanningParam
     unsigned char ucSensorReadInFormat;     // 'C': data is calculated to distance, 'R': data is raw sensor readin
 } scanningParamRequest;
 
-/* error booleans */
+/* error states */
 uint8_t ERRORserialInQueue = 0;
 uint8_t ERRORserialOutQueue = 0;
 
 /* Global states/request/variables */
-uint8_t bScanRequestAvailable = 0;
+uint8_t dScanRequestAvailable = 0;
+uint8_t dLiveScanRequest = 0;
+uint8_t dLiveScanDataAvailable = 0;
+
+/*testing variables*/
 
 struct scanDataStructure
 {
@@ -100,19 +104,19 @@ struct scanDataStructure
     uint8_t timeBetweenSteps_ms;
 } tempScan;
 
-/*testing variables*/
+
 
 
 /* User defined functoins */
-int dFrameConstructor(void);
-int dSerialInCRCCheck(void);
-int dSerialSend(unsigned char ucCommand, unsigned char ucData[], int dLengthOfData);
-int dTransmitSerialOutFrame(void);
+uint8_t dFrameConstructor(void);
+uint8_t dSerialInCRCCheck(void);
+uint8_t dSerialSend(unsigned char ucCommand, unsigned char ucData[], uint8_t dLengthOfData);
+uint8_t dTransmitSerialOutFrame(void);
 
 
 void serialDr(void* pvParameters) 
 {
-	int i, j;
+	uint8_t i, j;
     tempScan.scanID = 0x01;
 	tempScan.stepAngle = 5;
 	tempScan.numberOfSteps = 42;
@@ -131,7 +135,7 @@ void serialDr(void* pvParameters)
     {
         // serialInQueue
         unsigned char ucTempData[SERIAL_MAX_DATA_LENGTH];
-        int temp = dFrameConstructor();
+        uint8_t temp = dFrameConstructor();
         if (temp == 0)
         {
             // No serial data available or time-out
@@ -171,7 +175,7 @@ void serialDr(void* pvParameters)
                             if (!dSerialSend('C', ucTempData, 0)) ERRORserialOutQueue = 1;
                         }
                     }
-                    else 
+                    else if (bConnectionEstablished && !dLiveScanRequest)
                     {    
                         if ( SERIAL_DRIVER_ACK_RETURN )
                         {
@@ -192,6 +196,8 @@ void serialDr(void* pvParameters)
                             case 's':
                             case 'S':
                                 // STOP!!
+                                dLiveScanRequest = 0;
+                                if (!dSerialSend('S', ucTempData, 0)) ERRORserialOutQueue = 1;
                                 break;
                                 
                             // Parameter command
@@ -221,8 +227,10 @@ void serialDr(void* pvParameters)
                             case 'a':
                             case 'A':
                                 // request a scan from other
-                                bScanRequestAvailable = 1;
-                                while(bScanRequestAvailable);   // wait for scan to be resolved
+                                dScanRequestAvailable = 1;
+                                // poll someone to handle request
+
+                                while(dScanRequestAvailable);   // wait for scan to be resolved
                                 if (!dSerialSend('Y', ucTempData, 0)) ERRORserialOutQueue = 1; // send ack when done
                                 break;
                             
@@ -236,7 +244,7 @@ void serialDr(void* pvParameters)
                                     // use dummy variables for testing purposes
 
                                     // calculate packets to send
-                                    int remainingPakkets = tempScan.numberOfSteps + 1;
+                                    uint8_t remainingPakkets = tempScan.numberOfSteps + 1;
                                     // send parameters of the saved scanned data
                                     i = 0;
                                     ucTempData[i++] = tempScan.scanID;
@@ -288,6 +296,8 @@ void serialDr(void* pvParameters)
                             case 'F':
                                 // set live-stream settings and start livestream
                                 // Maybe new task??
+                                dLiveScanRequest = 1;
+                                if (!dSerialSend('F', ucTempData, 0)) ERRORserialOutQueue = 1;
                                 break;
                                 
                             // received ack on last send frame
@@ -312,19 +322,63 @@ void serialDr(void* pvParameters)
                                 if (!dSerialSend('U', ucTempData, 0)) ERRORserialOutQueue = 1; 
                         }
                     }
+                    else if (bConnectionEstablished && dLiveScanRequest)
+                    {
+                        if ( SERIAL_DRIVER_ACK_RETURN )
+                        {
+                            if (!dSerialSend('Y', ucTempData, 0)) ERRORserialOutQueue = 1;
+                        }
+                        switch(serialInDataFrame.ucCommand)
+                        {
+                            case 's':
+                            case 'S':
+                                dLiveScanRequest = 0;   // maybe take semphore or something
+                                if (!dSerialSend('S', ucTempData, 0)) ERRORserialOutQueue = 1;
+                                break;
+
+                            case 'n':
+                            case 'N':
+                            case 'u':
+                            case 'U':
+                                // resend last frame
+                                dTransmitSerialOutFrame();
+                                break;
+
+                            default:
+                                if (!dSerialSend('U', ucTempData, 0)) ERRORserialOutQueue = 1; 
+                        }
+                    }
                 }
             }    
+        }
+
+        if ( dLiveScanRequest && dLiveScanDataAvailable )
+        {
+            // new values ready to send.
+            // temporary values here, but needs to be pulled from somewhere
+            uint8_t angleShortLive = 0;
+            uint8_t sensorShortLiveData = 0;
+            uint8_t angleLongLive = 0;
+            uint8_t sensorLongLiveData = 0;
+            uint8_t aliveTime = 0;
+            i = 0;
+            ucTempData[i++] = angleShortLive;
+            ucTempData[i++] = sensorShortLiveData;
+            ucTempData[i++] = angleLongLive;
+            ucTempData[i++] = sensorLongLiveData;
+            ucTempData[i++] = aliveTime;
+            if (!dSerialSend('F', ucTempData, i)) ERRORserialOutQueue = 1;
         }
 
         vTaskDelay(100);
     }
 }
 
-int dFrameConstructor(void) 
+uint8_t dFrameConstructor(void) 
 {
     if (serialInQueue != 0)
     {
-        int i, j, dTempFrameLength = SERIAL_MAX_FRAME_LENGTH, dTempDataLength = SERIAL_MAX_DATA_LENGTH;
+        uint8_t i, j, dTempFrameLength = SERIAL_MAX_FRAME_LENGTH, dTempDataLength = SERIAL_MAX_DATA_LENGTH;
         unsigned char ucTempFrame[SERIAL_MAX_FRAME_LENGTH], ucTempQueueBuffer;
         
         // extract one frame from queue
@@ -364,10 +418,10 @@ int dFrameConstructor(void)
     return 1;
 }
 
-int dSerialInCRCCheck(void)
+uint8_t dSerialInCRCCheck(void)
 {
-    int i;
-    int dTempDataLength = (int) (serialInDataFrame.ucFrameLengthBytes - (SERIAL_MAX_FRAME_LENGTH - SERIAL_MAX_DATA_LENGTH));
+    uint8_t i;
+    uint8_t dTempDataLength = (int) (serialInDataFrame.ucFrameLengthBytes - (SERIAL_MAX_FRAME_LENGTH - SERIAL_MAX_DATA_LENGTH));
     unsigned char ucTempCRC = serialInDataFrame.ucData[0];
     for(i = 1; i < ( dTempDataLength ); i++)
     {
@@ -387,9 +441,9 @@ int dSerialInCRCCheck(void)
     return 0;
 }
 
-int dSerialSend(unsigned char ucCommand, unsigned char ucData[], int dLengthOfData)
+uint8_t dSerialSend(unsigned char ucCommand, unsigned char ucData[], uint8_t dLengthOfData)
 {
-    int i;
+    uint8_t i;
     if (ucConnectedHostID && !bConnectionEstablished)
     {
         // connected and valid ID.
@@ -424,9 +478,9 @@ int dSerialSend(unsigned char ucCommand, unsigned char ucData[], int dLengthOfDa
     return 0;
 }
 
-int dTransmitSerialOutFrame(void)
+uint8_t dTransmitSerialOutFrame(void)
 {
-    int i;
+    uint8_t i;
     uint8_t dLengthOfData = (uint8_t) ( serialOutDataFrame.ucFrameLengthBytes - (SERIAL_MAX_FRAME_LENGTH - SERIAL_MAX_DATA_LENGTH) );
     unsigned char txBuffer;
     // Push to serialOutQueue
