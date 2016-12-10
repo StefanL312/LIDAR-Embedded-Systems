@@ -49,9 +49,11 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
+#include "lidarDefaultHeader.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
+#include "queue.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -104,7 +106,7 @@ SemaphoreHandle_t startPosCTRL; // start scanning, (postion controller)
 #define LED_SET_THREE 00000100
 
 uint8_t LED_Register_Bits = 00001010;
-//xQueueHandle_t serialInQueue, serialOutQueue;
+//QueueHandle_t serialInQueue, serialOutQueue;
 /* USER CODE END 0 */
 
 int main(void)

@@ -28,6 +28,8 @@ extern static Taskhandle_t xPosCtrlHandle;*/
 #define SERIAL_MAX_DATA_LENGTH      10
 #define SERIAL_MAX_FRAME_LENGTH     (SERIAL_MAX_DATA_LENGTH + 6)
 
+#define TESTING_DUMMY_VARIABLES 0
+
 /**
  * @brief      { This will control the uart. (send a string byte, by byte for example) }
  *
@@ -105,10 +107,12 @@ struct scanDataStructure
 int dFrameConstructor(void);
 int dSerialInCRCCheck(void);
 int dSerialSend(unsigned char ucCommand, unsigned char ucData[], int dLengthOfData);
+int dTransmitSerialOutFrame(void);
+
 
 void serialDr(void* pvParameters) 
 {
-	int i;
+	int i, j;
     tempScan.scanID = 0x01;
 	tempScan.stepAngle = 5;
 	tempScan.numberOfSteps = 42;
@@ -226,40 +230,55 @@ void serialDr(void* pvParameters)
                             case 'r':
                             case 'R':
                                 if (!dSerialSend('Y', ucTempData, 0)) ERRORserialOutQueue = 1; // send acknowledge command
-                                // send parameters of the saved scanned data
-                                // Pull data from the FLASH memory 
-                                // calculate packets to send
-                                static int remainingPakkets = tempScan.numberOfSteps + 1;
-                                i = 0;
-                                ucTempData[i++] = tempScan.scanID;
-                                ucTempData[i++] = tempScan.stepAngle;
-                                ucTempData[i++] = tempScan.scansPerAngle;
-                                ucTempData[i++] = tempScan.scanAveragingTimeWindow;
-                                ucTempData[i++] = tempScan.ucSensorReadInFormat;
-                                ucTempData[i++] = remainingPakkets--;
-                                if (!dSerialSend('R', ucTempData, i)) ERRORserialOutQueue = 1; 
-                                
-                                for (remainingPakkets = remainingPakkets, j = 0; remainingPakkets > 0; remainingPakkets--, j+= tempScan.stepAngle)
+
+                                if (TESTING_DUMMY_VARIABLES == 1) 
                                 {
+                                    // use dummy variables for testing purposes
+
+                                    // calculate packets to send
+                                    int remainingPakkets = tempScan.numberOfSteps + 1;
+                                    // send parameters of the saved scanned data
                                     i = 0;
-                                    // angle of the sensor
-                                    ucTempData[i++] = j;
-                                    ucTempData[i++] = tempScan.sensorShortData[remainingPakkets-1];
-                                    ucTempData[i++] = j + 30;
-                                    ucTempData[i++] = tempScan.sensorLongData[remainingPakkets];
-                                    ucTempData[i++] = remainingPakkets;
+                                    ucTempData[i++] = tempScan.scanID;
+                                    ucTempData[i++] = tempScan.stepAngle;
+                                    ucTempData[i++] = tempScan.scansPerAngle;
+                                    ucTempData[i++] = tempScan.scanAveragingTimeWindow;
+                                    ucTempData[i++] = tempScan.ucSensorReadInFormat;
+                                    ucTempData[i++] = remainingPakkets--;
                                     if (!dSerialSend('R', ucTempData, i)) ERRORserialOutQueue = 1; 
+                                    
+                                    for (remainingPakkets = remainingPakkets, j = 0; remainingPakkets > 0; remainingPakkets--, j+= tempScan.stepAngle)
+                                    {
+                                        i = 0;
+                                        // angle of the sensor
+                                        ucTempData[i++] = j;
+                                        // ucTempData[i++] = j + 100;
+                                        ucTempData[i++] = tempScan.sensorShortData[remainingPakkets-1];
+                                        ucTempData[i++] = j + 30;
+                                        // ucTempData[i++] = j + 200;
+                                        ucTempData[i++] = tempScan.sensorLongData[remainingPakkets];
+                                        ucTempData[i++] = remainingPakkets;
+                                        if (!dSerialSend('R', ucTempData, i)) ERRORserialOutQueue = 1; 
+                                    }
+                                    
+                                    // last packet
+                                    i = 0;
+                                    ucTempData[i++] = (uint8_t) tempScan.timeFullScan_ms>>16;
+                                    ucTempData[i++] = (uint8_t) tempScan.timeFullScan_ms & 0xFF;
+                                    ucTempData[i++] = tempScan.timeBetweenSteps_ms;
+                                    ucTempData[i++] = 0;
+                                    if (!dSerialSend('R', ucTempData, i)) ERRORserialOutQueue = 1; 
+                                    
+                                }
+                                else
+                                {
+                                    // real data for transmission
+                                    
+                                    // Pull data from the FLASH memory 
+
                                 }
                                 
-                                // last packet
-                                i = 0;
-                                ucTempData[i++] = (uint8_t) tempScan.timeFullScan_ms>>16;
-                                ucTempData[i++] = (uint8_t) tempScan.timeFullScan_ms & 0xFF;
-                                ucTempData[i++] = tempScan.timeBetweenSteps_ms;
-                                ucTempData[i++] = 0;
-                                if (!dSerialSend('R', ucTempData, i)) ERRORserialOutQueue = 1; 
-                                
-                                // end chain??
+                                // end of chain
                                 if (!dSerialSend('E', ucTempData, i)) ERRORserialOutQueue = 1; 
                                 
                                 break;
@@ -283,19 +302,21 @@ void serialDr(void* pvParameters)
                             case 'u':
                             case 'U':
                                 // resend last frame
+                                dTransmitSerialOutFrame();
                                 break;
                                 
                             default:
                                 // unrecognized command
                                 // FUUUUUUCKKK
                                 // send 'U' command
+                                if (!dSerialSend('U', ucTempData, 0)) ERRORserialOutQueue = 1; 
                         }
                     }
                 }
             }    
         }
 
-        vTaskDelay(250);
+        vTaskDelay(100);
     }
 }
 
@@ -309,7 +330,7 @@ int dFrameConstructor(void)
         // extract one frame from queue
         for(i = 0; i < (SERIAL_MAX_FRAME_LENGTH - (SERIAL_MAX_FRAME_LENGTH - dTempFrameLength)); i++)
         {
-             if( xQueueReceive(serialInQueue, &(pcTempQueueBuffer), (TickType_t) 10) == pdFALSE)
+             if( xQueueReceive(serialInQueue, &(ucTempQueueBuffer), (TickType_t) 10) == pdFALSE)
             {
                 // exit function. Frame error.
                 return 0;
@@ -345,6 +366,7 @@ int dFrameConstructor(void)
 
 int dSerialInCRCCheck(void)
 {
+    int i;
     int dTempDataLength = (int) (serialInDataFrame.ucFrameLengthBytes - (SERIAL_MAX_FRAME_LENGTH - SERIAL_MAX_DATA_LENGTH));
     unsigned char ucTempCRC = serialInDataFrame.ucData[0];
     for(i = 1; i < ( dTempDataLength ); i++)
@@ -368,7 +390,6 @@ int dSerialInCRCCheck(void)
 int dSerialSend(unsigned char ucCommand, unsigned char ucData[], int dLengthOfData)
 {
     int i;
-    unsigned char txBuffer;
     if (ucConnectedHostID && !bConnectionEstablished)
     {
         // connected and valid ID.
@@ -396,27 +417,35 @@ int dSerialSend(unsigned char ucCommand, unsigned char ucData[], int dLengthOfDa
                                                     serialOutDataFrame.ucFrameLengthBytes ^  
                                                     ucTempCRC ^                                                     
                                                     serialOutDataFrame.ucStateFlags );
-        
-        // Push to serialOutQueue
-        if( xQueueSend( serialOutQueue, ( void * ) &serialOutDataFrame.ucDestinationID,     ( TickType_t ) 10 ) != pdTRUE ) /*error*/   return errQUEUE_FULL;
-        if( xQueueSend( serialOutQueue, ( void * ) &serialOutDataFrame.ucSourceID,          ( TickType_t ) 10 ) != pdTRUE ) /*error*/   return errQUEUE_FULL;
-        if( xQueueSend( serialOutQueue, ( void * ) &serialOutDataFrame.ucCommand,           ( TickType_t ) 10 ) != pdTRUE ) /*error*/   return errQUEUE_FULL;
-        if( xQueueSend( serialOutQueue, ( void * ) &serialOutDataFrame.ucFrameLengthBytes,  ( TickType_t ) 10 ) != pdTRUE ) /*error*/   return errQUEUE_FULL;
-        for(i = 0; i < ( dLengthOfData ); i++)
-        {
-            if( xQueueSend( serialOutQueue, ( void * ) &serialOutDataFrame.ucData[i],       ( TickType_t ) 10 ) != pdTRUE ) /*error*/   return errQUEUE_FULL;
-        }
-        if( xQueueSend( serialOutQueue, ( void * ) &serialOutDataFrame.ucStateFlags,        ( TickType_t ) 10 ) != pdTRUE ) /*error*/   return errQUEUE_FULL;
-        if( xQueueSend( serialOutQueue, ( void * ) &serialOutDataFrame.ucCRC,               ( TickType_t ) 10 ) != pdTRUE ) /*error*/   return errQUEUE_FULL;
-        
-        // Poll the RX Uart by sending the first byte manually
-        if( xQueueReceive(serialOutQueue, &(txBuffer), (TickType_t) 10) != pdTRUE ) /*error*/   return 0;
-        USART1->TDR = txBuffer;
 
-
+        if ( !dTransmitSerialOutFrame() ) /*error*/ return 0;
         return 1;
     }
     return 0;
+}
+
+int dTransmitSerialOutFrame(void)
+{
+    int i;
+    uint8_t dLengthOfData = (uint8_t) ( serialOutDataFrame.ucFrameLengthBytes - (SERIAL_MAX_FRAME_LENGTH - SERIAL_MAX_DATA_LENGTH) );
+    unsigned char txBuffer;
+    // Push to serialOutQueue
+    if( xQueueSend( serialOutQueue, ( void * ) &serialOutDataFrame.ucDestinationID,     ( TickType_t ) 10 ) != pdTRUE ) /*error*/   return errQUEUE_FULL;
+    if( xQueueSend( serialOutQueue, ( void * ) &serialOutDataFrame.ucSourceID,          ( TickType_t ) 10 ) != pdTRUE ) /*error*/   return errQUEUE_FULL;
+    if( xQueueSend( serialOutQueue, ( void * ) &serialOutDataFrame.ucCommand,           ( TickType_t ) 10 ) != pdTRUE ) /*error*/   return errQUEUE_FULL;
+    if( xQueueSend( serialOutQueue, ( void * ) &serialOutDataFrame.ucFrameLengthBytes,  ( TickType_t ) 10 ) != pdTRUE ) /*error*/   return errQUEUE_FULL;
+    for(i = 0; i < ( dLengthOfData ); i++)
+    {
+        if( xQueueSend( serialOutQueue, ( void * ) &serialOutDataFrame.ucData[i],       ( TickType_t ) 10 ) != pdTRUE ) /*error*/   return errQUEUE_FULL;
+    }
+    if( xQueueSend( serialOutQueue, ( void * ) &serialOutDataFrame.ucStateFlags,        ( TickType_t ) 10 ) != pdTRUE ) /*error*/   return errQUEUE_FULL;
+    if( xQueueSend( serialOutQueue, ( void * ) &serialOutDataFrame.ucCRC,               ( TickType_t ) 10 ) != pdTRUE ) /*error*/   return errQUEUE_FULL;
+    
+    // Poll the RX Uart by sending the first byte manually
+    if( xQueueReceive(serialOutQueue, &(txBuffer), (TickType_t) 10) != pdTRUE ) /*error*/   return 0;
+    USART1->TDR = txBuffer;
+
+    return 1;
 }
 
 #undef SERIAL_DRIVER_ACK_RETURN    

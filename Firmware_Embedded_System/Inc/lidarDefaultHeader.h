@@ -8,6 +8,12 @@
 #include "usb_device.h"
 #include "gpio.h"
 
+#include <stdio.h>
+
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+
 /*To use the functions of the .c file set the define to 1*/
 #define SENSDRIVE 	0
 #define COMINTER 	0
@@ -29,5 +35,7 @@ extern TaskHandle_t xHBridgeHandle;
 extern TaskHandle_t xEasyStepHandle;
 extern TaskHandle_t xSysCtrlHandle;
 extern TaskHandle_t xPosCtrlHandle;
+
+extern QueueHandle_t serialInQueue, serialOutQueue;
 
 #endif

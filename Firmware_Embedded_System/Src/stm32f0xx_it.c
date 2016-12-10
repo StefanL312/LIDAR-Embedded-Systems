@@ -31,9 +31,16 @@
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
+#include <stdio.h>
+
 #include "stm32f0xx_hal.h"
 #include "stm32f0xx.h"
 #include "stm32f0xx_it.h"
+
+#include "FreeRTOS.h"
+#include "task.h"
+#include "lidarDefaultHeader.h"
+
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
@@ -212,9 +219,9 @@ void USART1_IRQHandler(void){
 
 		if( xTaskWokenByReceive != pdFALSE )
 	    {
-	        taskYIELD ();
+	        taskYIELD();
 	    }
-    
+        
 	}
 	else if((USART1->ISR & USART_ISR_RXNE) == USART_ISR_RXNE)
 	{ 
@@ -228,7 +235,7 @@ void USART1_IRQHandler(void){
 	    if( xHigherPriorityTaskWoken )
 	    {
 	        /* Actual macro used here is port specific. */
-	        taskYIELD_FROM_ISR ();
+	        taskYIELD();
 	    }
 	}
 	else if((USART1->ISR & USART_ISR_PE) == USART_ISR_PE)
