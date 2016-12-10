@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.5\common\bin\cspybat" -f "D:\Home\Git\LIDAR-Embedded-Systems\Firmware_Embedded_System\EWARM\settings\lidarFirmware1.lidarFirmware1.2.general.xcl" --backend -f "D:\Home\Git\LIDAR-Embedded-Systems\Firmware_Embedded_System\EWARM\settings\lidarFirmware1.lidarFirmware1.2.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.5\common\bin\cspybat" -f "C:\Users\Ruben\Dropbox\School\jaar4\LIDAR\Software\Firmware\1.2\lidarfirmware1.2\EWARM\settings\lidarFirmware1.lidarFirmware1.2.general.xcl" --backend -f "C:\Users\Ruben\Dropbox\School\jaar4\LIDAR\Software\Firmware\1.2\lidarfirmware1.2\EWARM\settings\lidarFirmware1.lidarFirmware1.2.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.5\common\bin\cspybat" -f "D:\Home\Git\LIDAR-Embedded-Systems\Firmware_Embedded_System\EWARM\settings\lidarFirmware1.lidarFirmware1.2.general.xcl" "--debug_file=%~1" --backend -f "D:\Home\Git\LIDAR-Embedded-Systems\Firmware_Embedded_System\EWARM\settings\lidarFirmware1.lidarFirmware1.2.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.5\common\bin\cspybat" -f "C:\Users\Ruben\Dropbox\School\jaar4\LIDAR\Software\Firmware\1.2\lidarfirmware1.2\EWARM\settings\lidarFirmware1.lidarFirmware1.2.general.xcl" "--debug_file=%~1" --backend -f "C:\Users\Ruben\Dropbox\School\jaar4\LIDAR\Software\Firmware\1.2\lidarfirmware1.2\EWARM\settings\lidarFirmware1.lidarFirmware1.2.driver.xcl" 
 
 @echo off 
 :end
