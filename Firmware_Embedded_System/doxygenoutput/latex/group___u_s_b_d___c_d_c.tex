@@ -1,0 +1,84 @@
+\hypertarget{group___u_s_b_d___c_d_c}{}\section{U\+S\+B\+D\+\_\+\+C\+DC}
+\label{group___u_s_b_d___c_d_c}\index{U\+S\+B\+D\+\_\+\+C\+DC@{U\+S\+B\+D\+\_\+\+C\+DC}}
+
+
+usbd core module  
+
+
+\subsection*{Modules}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{group___u_s_b_d___c_d_c___private___types_definitions}{U\+S\+B\+D\+\_\+\+C\+D\+C\+\_\+\+Private\+\_\+\+Types\+Definitions}
+\item 
+\hyperlink{group___u_s_b_d___c_d_c___private___defines}{U\+S\+B\+D\+\_\+\+C\+D\+C\+\_\+\+Private\+\_\+\+Defines}
+\item 
+\hyperlink{group___u_s_b_d___c_d_c___private___macros}{U\+S\+B\+D\+\_\+\+C\+D\+C\+\_\+\+Private\+\_\+\+Macros}
+\item 
+\hyperlink{group___u_s_b_d___c_d_c___private___variables}{U\+S\+B\+D\+\_\+\+C\+D\+C\+\_\+\+Private\+\_\+\+Variables}
+\item 
+\hyperlink{group___u_s_b_d___c_d_c___i_f___exported___variables}{U\+S\+B\+D\+\_\+\+C\+D\+C\+\_\+\+I\+F\+\_\+\+Exported\+\_\+\+Variables}
+\item 
+\hyperlink{group___u_s_b_d___c_d_c___private___function_prototypes}{U\+S\+B\+D\+\_\+\+C\+D\+C\+\_\+\+Private\+\_\+\+Function\+Prototypes}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+uint8\+\_\+t \hyperlink{group___u_s_b_d___c_d_c_ga5137d6201dbdef2bf351c5b4941c24f4}{C\+D\+C\+\_\+\+Transmit\+\_\+\+FS} (uint8\+\_\+t $\ast$Buf, uint16\+\_\+t Len)
+\begin{DoxyCompactList}\small\item\em C\+D\+C\+\_\+\+Transmit\+\_\+\+FS Data send over U\+SB IN endpoint are sent over C\+DC interface through this function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+U\+S\+B\+D\+\_\+\+C\+D\+C\+\_\+\+Itf\+Type\+Def {\bfseries U\+S\+B\+D\+\_\+\+Interface\+\_\+fops\+\_\+\+FS}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+usbd core module 
+
+
+
+\subsection{Function Documentation}
+\hypertarget{group___u_s_b_d___c_d_c_ga5137d6201dbdef2bf351c5b4941c24f4}{}\label{group___u_s_b_d___c_d_c_ga5137d6201dbdef2bf351c5b4941c24f4} 
+\index{U\+S\+B\+D\+\_\+\+C\+DC@{U\+S\+B\+D\+\_\+\+C\+DC}!C\+D\+C\+\_\+\+Transmit\+\_\+\+FS@{C\+D\+C\+\_\+\+Transmit\+\_\+\+FS}}
+\index{C\+D\+C\+\_\+\+Transmit\+\_\+\+FS@{C\+D\+C\+\_\+\+Transmit\+\_\+\+FS}!U\+S\+B\+D\+\_\+\+C\+DC@{U\+S\+B\+D\+\_\+\+C\+DC}}
+\subsubsection{\texorpdfstring{C\+D\+C\+\_\+\+Transmit\+\_\+\+F\+S()}{CDC\_Transmit\_FS()}}
+{\footnotesize\ttfamily uint8\+\_\+t C\+D\+C\+\_\+\+Transmit\+\_\+\+FS (\begin{DoxyParamCaption}\item[{uint8\+\_\+t $\ast$}]{Buf,  }\item[{uint16\+\_\+t}]{Len }\end{DoxyParamCaption})}
+
+
+
+C\+D\+C\+\_\+\+Transmit\+\_\+\+FS Data send over U\+SB IN endpoint are sent over C\+DC interface through this function. 
+
+\begin{DoxyNote}{Note}
+
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em Buf} & Buffer of data to be send \\
+\hline
+{\em Len} & Number of data to be send (in bytes) \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em Result} & of the operation\+: U\+S\+B\+D\+\_\+\+OK if all operations are OK else U\+S\+B\+D\+\_\+\+F\+A\+IL or U\+S\+B\+D\+\_\+\+B\+U\+SY \\
+\hline
+\end{DoxyRetVals}
+
+
+\subsection{Variable Documentation}
+\hypertarget{group___u_s_b_d___c_d_c_ga99394ed19b774f171df96c2848c411ed}{}\label{group___u_s_b_d___c_d_c_ga99394ed19b774f171df96c2848c411ed} 
+\index{U\+S\+B\+D\+\_\+\+C\+DC@{U\+S\+B\+D\+\_\+\+C\+DC}!U\+S\+B\+D\+\_\+\+Interface\+\_\+fops\+\_\+\+FS@{U\+S\+B\+D\+\_\+\+Interface\+\_\+fops\+\_\+\+FS}}
+\index{U\+S\+B\+D\+\_\+\+Interface\+\_\+fops\+\_\+\+FS@{U\+S\+B\+D\+\_\+\+Interface\+\_\+fops\+\_\+\+FS}!U\+S\+B\+D\+\_\+\+C\+DC@{U\+S\+B\+D\+\_\+\+C\+DC}}
+\subsubsection{\texorpdfstring{U\+S\+B\+D\+\_\+\+Interface\+\_\+fops\+\_\+\+FS}{USBD\_Interface\_fops\_FS}}
+{\footnotesize\ttfamily U\+S\+B\+D\+\_\+\+C\+D\+C\+\_\+\+Itf\+Type\+Def U\+S\+B\+D\+\_\+\+Interface\+\_\+fops\+\_\+\+FS}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+= 
+\{
+  CDC\_Init\_FS,
+  CDC\_DeInit\_FS,
+  CDC\_Control\_FS,  
+  CDC\_Receive\_FS
+\}
+\end{DoxyCode}
