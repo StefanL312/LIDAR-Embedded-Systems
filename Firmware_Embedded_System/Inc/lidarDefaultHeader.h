@@ -26,6 +26,21 @@
 #define USBDR 		0
 #define EXAMPLE 	0
 
+
+struct CONTROL_STRUCT{
+	char init;
+	char start;
+};
+
+struct EASYSTEP{
+	int dir;
+	int stepsize;
+	int speed;
+};
+
+void easyStep(struct EASYSTEP easy);	
+void easyInit(struct EASYSTEP easy);
+
 extern TaskHandle_t xUsbDrHandle;
 extern TaskHandle_t xSerialDrHandle;
 extern TaskHandle_t xComInterHandle;
