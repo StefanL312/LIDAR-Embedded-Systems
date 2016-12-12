@@ -14,22 +14,14 @@
 
 #if SYSCTRL == 1
 
+#define LED_SET_ONE 	00000001
+#define LED_SET_TWO 	00000010
+#define LED_SET_THREE 	00000100
+
 void LED_Control(void* argument);
 void Button_Control(void* argument);
 
 extern uint8_t LED_Register_Bits;
-
-/**
- * @brief      { 	This function will control the system. this function handles the status leds, and input buttons. 
-	And know the state of the machine(stop, unitialized, running, measuring, etc.) }
- *
- * @param      pvParameters  The pv parameters
- */
-void sysCtrl(void* pvParameters) {
-	while(1) {
-		vTaskDelay(250);
-	}
-}
 
 /*
 	Set Pinouts for LEDs with status of pointer argument.
@@ -76,7 +68,7 @@ void Button_Control(void* argument)
 			LED_Register_Bits ^= 00000100;
 		}
 
-		vTaskDelay(50);
+		vTaskDelay(100);
 	}
 
 }
