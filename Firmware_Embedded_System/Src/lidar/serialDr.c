@@ -54,6 +54,10 @@ extern static Taskhandle_t xPosCtrlHandle;*/
 * rising complications. 
 */
 
+/* External Variable */
+
+extern QueueHandle_t serialInQueue, serialOutQueue;
+
 struct serialDataFrame
 {
     unsigned char   ucDestinationID;

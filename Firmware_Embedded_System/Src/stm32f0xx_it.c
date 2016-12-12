@@ -40,7 +40,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "lidarDefaultHeader.h"
-// #include "main.h"
+// #include "queue.h"
+
 
 /* USER CODE BEGIN 0 */
 
@@ -52,6 +53,8 @@ extern PCD_HandleTypeDef hpcd_USB_FS;
 extern TIM_HandleTypeDef htim3;
 
 extern uint8_t LED_Register_Bits;
+
+extern QueueHandle_t serialInQueue, serialOutQueue;
 
 
 /******************************************************************************/
