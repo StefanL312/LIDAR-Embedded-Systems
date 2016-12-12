@@ -22,7 +22,7 @@
 #define PHOTOINT 	0
 #define POSCTRL 	0
 #define SERIALDR 	0
-#define SYSCTRL 	0
+#define SYSCTRL 	1
 #define USBDR 		0
 #define EXAMPLE 	0
 

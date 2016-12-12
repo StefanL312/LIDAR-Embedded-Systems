@@ -41,12 +41,12 @@
 ******************************************************************************
 */
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
+/*#include "main.h"
 #include "stm32f0xx_hal.h"
 #include "adc.h"
 #include "usart.h"
 #include "usb_device.h"
-#include "gpio.h"
+#include "gpio.h"*/
 
 /* USER CODE BEGIN Includes */
 #include "lidarDefaultHeader.h"
@@ -72,7 +72,7 @@ void Error_Handler(void);
 extern void example(void* pvParameters);
 extern void water(void* pvParameters);
 extern void LED_Control(void* argument);
-
+extern void Button_Control(void* argument);
 extern void usbDr(void* pvParameters);
 extern void serialDr(void* pvParameters);
 extern void comInter(void* pvParameters);
@@ -80,7 +80,6 @@ extern void sensDriv(void* pvParameters);
 extern void photoInt(void* pvParameters);
 extern void hBridge(void* pvParameters);
 extern void easyStep(void* pvParameters);
-extern void sysCtrl(void* pvParameters);
 extern void posCtrl(void* pvParameters);
 
 static TaskHandle_t xUsbDrHandle = NULL;
@@ -101,12 +100,9 @@ SemaphoreHandle_t startPosCTRL; // start scanning, (postion controller)
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-#define LED_SET_ONE 00000001
-#define LED_SET_TWO 00000010
-#define LED_SET_THREE 00000100
 
 uint8_t LED_Register_Bits = 00001010;
-//QueueHandle_t serialInQueue, serialOutQueue;
+QueueHandle_t serialInQueue, serialOutQueue;
 /* USER CODE END 0 */
 
 int main(void)
@@ -175,7 +171,7 @@ int main(void)
 		if (xTaskCreate(
 						LED_Control,
 						"LED_CONT",
-						configMINIMAL_STACK_SIZE + 0,
+						configMINIMAL_STACK_SIZE + 100,
 						(void*) NULL,
 						taskIDLE_PRIORITY + 1,
 						(xTaskHandle*) NULL)
@@ -186,7 +182,7 @@ int main(void)
 		if (xTaskCreate(
 						Button_Control,
 						"BUT_CONT",
-						configMINIMAL_STACK_SIZE + 0,
+						configMINIMAL_STACK_SIZE + 100,
 						(void*) NULL,
 						taskIDLE_PRIORITY + 1,
 						(xTaskHandle*) NULL)
@@ -264,16 +260,6 @@ int main(void)
 		taskIDLE_PRIORITY + 1,
 		(xTaskHandle*) NULL);
 		#endif
-		
-		#if SYSCTRL == 1
-		xTaskCreate(
-		sysCtrl,
-		"sysCtrl",
-		configMINIMAL_STACK_SIZE + 0,
-		(void*) NULL,
-		taskIDLE_PRIORITY + 1,
-		(xTaskHandle*) NULL);
-		#endif
 
 		#if POSCTRL == 1		
 		if(xTaskCreate(
@@ -292,7 +278,6 @@ int main(void)
 		
 		
 		/* Start scheduler */
-		//osKernelStart();
 		HAL_GPIO_WritePin (GPIOB, status_led3_Pin|status_led2_Pin|status_led1_Pin, GPIO_PIN_SET);
 		vTaskStartScheduler();	// should not get past this function
 		for(;;);
