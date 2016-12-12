@@ -55,7 +55,7 @@ extern static Taskhandle_t xPosCtrlHandle;*/
 */
 
 /* External Variable */
-
+//hallo
 extern QueueHandle_t serialInQueue, serialOutQueue;
 
 struct serialDataFrame
