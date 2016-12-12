@@ -94,14 +94,15 @@ static TaskHandle_t xPosCtrlHandle = NULL;
 
 
 // Semaphore Declarations:
-SemaphoreHandle_t initPosCTRL; // init postion controller
-SemaphoreHandle_t startPosCTRL; // start scanning, (postion controller)
+// SemaphoreHandle_t initPosCTRL; // init postion controller
+// SemaphoreHandle_t startPosCTRL; // start scanning, (postion controller)
 
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
 
 uint8_t LED_Register_Bits = 00001010;
+uint8_t Button_Status = 00000000;
 QueueHandle_t serialInQueue, serialOutQueue;
 /* USER CODE END 0 */
 
@@ -155,14 +156,14 @@ int main(void)
 	
 	while (1)
 	{
-		initPosCTRL = xSemaphoreCreateBinary();
-		if(initPosCTRL == NULL){
-			// error handler
-		}
-		startPosCTRL = xSemaphoreCreateBinary();
-		if(startPosCTRL == NULL){
-			// error handler
-		}		
+		// initPosCTRL = xSemaphoreCreateBinary();
+		// if(initPosCTRL == NULL){
+		// 	// error handler
+		// }
+		// startPosCTRL = xSemaphoreCreateBinary();
+		// if(startPosCTRL == NULL){
+		// 	// error handler
+		// }		
 		
 		
 		// traceanaylzer
@@ -261,12 +262,16 @@ int main(void)
 		(xTaskHandle*) NULL);
 		#endif
 
+		
+
+		CONTROL_STRUCT posControlStruct = { 0 };
+		
 		#if POSCTRL == 1		
 		if(xTaskCreate(
 					   posCtrl,
 					   "posCtrl",
 					   configMINIMAL_STACK_SIZE + 0,
-					   (void*) NULL,
+					   &posControlStruct,
 					   taskIDLE_PRIORITY + 1,
 					   &xPosCtrlHandle)
 		   != pdPASS ){
