@@ -103,10 +103,17 @@ SemaphoreHandle_t startPosCTRL; // start scanning, (postion controller)
 
 uint8_t LED_Register_Bits = 00001010;
 QueueHandle_t serialInQueue, serialOutQueue;
+
+
 /* USER CODE END 0 */
 
 int main(void)
 {
+	// volatile uint8_t sensorLongData[1000];
+	// for (int i = 0; i < 1000; i++)
+	// {
+	// 	sensorLongData[i] = i;
+	// }
 	
 	/* USER CODE BEGIN 1 */
 	
@@ -125,7 +132,7 @@ int main(void)
 
 	MX_ADC_Init();
 	MX_USART1_UART_Init();
-	MX_USB_DEVICE_Init();
+	// MX_USB_DEVICE_Init();
 	
 	EXTI->RTSR = EXTI_RTSR_TR6;
 	
@@ -137,15 +144,17 @@ int main(void)
 	// this queue should be filled in a interrupt using xQueueSendToBackFromISR() function
 	/* Create a queue capable of containing 100 char values. */
 	serialInQueue = xQueueCreate( 100, sizeof( char ) );
-	if (serialInQueue == 0){
+	if (serialInQueue == NULL){
         // error
+        Error_Handler();
     }
 	
 	// this queue should be read in a interrupt using xQueueReceiveFromISR() function
 	/* Create a queue capable of containing 100 char values. */
 	serialOutQueue = xQueueCreate( 100, sizeof( char ) );
-	if (serialOutQueue == 0){
+	if (serialOutQueue == NULL){
         // error
+        Error_Handler();
     }
 	
 	/* USER CODE END 2 */
@@ -153,140 +162,143 @@ int main(void)
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	
-	while (1)
-	{
-		initPosCTRL = xSemaphoreCreateBinary();
-		if(initPosCTRL == NULL){
+	
+	initPosCTRL = xSemaphoreCreateBinary();
+	if(initPosCTRL == NULL){
+		// error handler
+	}
+	startPosCTRL = xSemaphoreCreateBinary();
+	if(startPosCTRL == NULL){
+		// error handler
+	}		
+	
+	
+	// traceanaylzer
+
+	#if SYSCTRL == 1 
+	if (xTaskCreate(
+					LED_Control,
+					"LED_CONT",
+					configMINIMAL_STACK_SIZE + 100,
+					(void*) NULL,
+					taskIDLE_PRIORITY + 1,
+					(xTaskHandle*) NULL)
+		!= pdPASS ){
 			// error handler
 		}
-		startPosCTRL = xSemaphoreCreateBinary();
-		if(startPosCTRL == NULL){
+
+	if (xTaskCreate(
+					Button_Control,
+					"BUT_CONT",
+					configMINIMAL_STACK_SIZE + 100,
+					(void*) NULL,
+					taskIDLE_PRIORITY + 1,
+					(xTaskHandle*) NULL)
+		!= pdPASS ){
 			// error handler
-		}		
-		
-		
-		// traceanaylzer
+		}
+	#endif
+	
+	#if USBDR == 1
+	xTaskCreate(
+	usbDr,
+	"usbDr",
+	configMINIMAL_STACK_SIZE + 0,
+	(void*) NULL,
+	taskIDLE_PRIORITY + 1,
+	(xTaskHandle*) NULL);
+	#endif
 
-		#if SYSCTRL == 1 
-		if (xTaskCreate(
-						LED_Control,
-						"LED_CONT",
-						configMINIMAL_STACK_SIZE + 100,
-						(void*) NULL,
-						taskIDLE_PRIORITY + 1,
-						(xTaskHandle*) NULL)
-			!= pdPASS ){
-				// error handler
-			}
+	#if SERIALDR == 1		
+	if( xTaskCreate(
+                    serialDr,
+                    "serialDr",
+                    configMINIMAL_STACK_SIZE + 250,
+                    (void*) NULL,
+                    taskIDLE_PRIORITY + 1,
+                    (xTaskHandle*) NULL) 
+    != pdPASS ){
+			// error handler
+        Error_Handler();
+		}
+	#endif
+	
+	#if COMINTER == 1
+	xTaskCreate(
+	comInter,
+	"comInter",
+	configMINIMAL_STACK_SIZE + 0,
+	(void*) NULL,
+	taskIDLE_PRIORITY + 1,
+	(xTaskHandle*) NULL);
+	#endif
 
-		if (xTaskCreate(
-						Button_Control,
-						"BUT_CONT",
-						configMINIMAL_STACK_SIZE + 100,
-						(void*) NULL,
-						taskIDLE_PRIORITY + 1,
-						(xTaskHandle*) NULL)
-			!= pdPASS ){
-				// error handler
-			}
-		#endif
-		
-		#if USBDR == 1
-		xTaskCreate(
-		usbDr,
-		"usbDr",
-		configMINIMAL_STACK_SIZE + 0,
-		(void*) NULL,
-		taskIDLE_PRIORITY + 1,
-		(xTaskHandle*) NULL);
-		#endif
+	#if SENSDRIV == 1
+	xTaskCreate(
+	sensDriv,
+	"sensDriv",
+	configMINIMAL_STACK_SIZE + 0,
+	(void*) NULL,
+	taskIDLE_PRIORITY + 1,
+	(xTaskHandle*) NULL);
+	#endif
+	
+	#if PHOTOINT == 1
+	xTaskCreate(
+	photoInt,
+	"photoInt",
+	configMINIMAL_STACK_SIZE + 0,
+	(void*) NULL,
+	taskIDLE_PRIORITY + 1,
+	(xTaskHandle*) NULL);
+	#endif
+	
+	#if HBRIDGE == 1
+	xTaskCreate(
+	hBridge,
+	"hBridge",
+	configMINIMAL_STACK_SIZE + 0,
+	(void*) NULL,
+	taskIDLE_PRIORITY + 1,
+	(xTaskHandle*) NULL);
+	#endif
+	
+	#if EASYSTEP == 1
+	xTaskCreate(
+	easyStep,
+	"easyStep",
+	configMINIMAL_STACK_SIZE + 0,
+	(void*) NULL,
+	taskIDLE_PRIORITY + 1,
+	(xTaskHandle*) NULL);
+	#endif
 
-		#if SERIALDR == 1		
-		xTaskCreate(
-		serialDr,
-		"serialDr",
-		configMINIMAL_STACK_SIZE + 0,
-		(void*) NULL,
-		taskIDLE_PRIORITY + 1,
-		(xTaskHandle*) NULL);
-		#endif
-		
-		#if COMINTER == 1
-		xTaskCreate(
-		comInter,
-		"comInter",
-		configMINIMAL_STACK_SIZE + 0,
-		(void*) NULL,
-		taskIDLE_PRIORITY + 1,
-		(xTaskHandle*) NULL);
-		#endif
+	#if POSCTRL == 1		
+	if(xTaskCreate(
+				   posCtrl,
+				   "posCtrl",
+				   configMINIMAL_STACK_SIZE + 0,
+				   (void*) NULL,
+				   taskIDLE_PRIORITY + 1,
+				   &xPosCtrlHandle)
+	   != pdPASS ){
+		   // error handler
+	   }
+	#endif
+	
+	
+	
+	
+	/* Start scheduler */
+	HAL_GPIO_WritePin (GPIOB, status_led3_Pin|status_led2_Pin|status_led1_Pin, GPIO_PIN_SET);
+	vTaskStartScheduler();	// should not get past this function
+	for(;;);
+	/* USER CODE END WHILE */
+	
+	/* USER CODE BEGIN 3 */
+	
 
-		#if SENSDRIV == 1
-		xTaskCreate(
-		sensDriv,
-		"sensDriv",
-		configMINIMAL_STACK_SIZE + 0,
-		(void*) NULL,
-		taskIDLE_PRIORITY + 1,
-		(xTaskHandle*) NULL);
-		#endif
-		
-		#if PHOTOINT == 1
-		xTaskCreate(
-		photoInt,
-		"photoInt",
-		configMINIMAL_STACK_SIZE + 0,
-		(void*) NULL,
-		taskIDLE_PRIORITY + 1,
-		(xTaskHandle*) NULL);
-		#endif
-		
-		#if HBRIDGE == 1
-		xTaskCreate(
-		hBridge,
-		"hBridge",
-		configMINIMAL_STACK_SIZE + 0,
-		(void*) NULL,
-		taskIDLE_PRIORITY + 1,
-		(xTaskHandle*) NULL);
-		#endif
-		
-		#if EASYSTEP == 1
-		xTaskCreate(
-		easyStep,
-		"easyStep",
-		configMINIMAL_STACK_SIZE + 0,
-		(void*) NULL,
-		taskIDLE_PRIORITY + 1,
-		(xTaskHandle*) NULL);
-		#endif
-
-		#if POSCTRL == 1		
-		if(xTaskCreate(
-					   posCtrl,
-					   "posCtrl",
-					   configMINIMAL_STACK_SIZE + 0,
-					   (void*) NULL,
-					   taskIDLE_PRIORITY + 1,
-					   &xPosCtrlHandle)
-		   != pdPASS ){
-			   // error handler
-		   }
-		#endif
-		
-		
-		
-		
-		/* Start scheduler */
-		HAL_GPIO_WritePin (GPIOB, status_led3_Pin|status_led2_Pin|status_led1_Pin, GPIO_PIN_SET);
-		vTaskStartScheduler();	// should not get past this function
-		for(;;);
-		/* USER CODE END WHILE */
-		
-		/* USER CODE BEGIN 3 */
-		
-	}
-		/* USER CODE END 3 */
+	/* USER CODE END 3 */
 		
 }
 		
@@ -418,4 +430,3 @@ int main(void)
 		*/ 
 		
 		/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-		

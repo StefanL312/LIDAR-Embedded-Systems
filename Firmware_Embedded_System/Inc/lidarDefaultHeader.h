@@ -1,7 +1,7 @@
 #ifndef __DEFAULTLIDARHEADER_H
 #define __DEFAULTLIDARHEADER_H
 
-#include "main.h"
+
 #include "stm32f0xx_hal.h"
 #include "adc.h"
 #include "usart.h"
@@ -21,7 +21,7 @@
 #define HBRIDGE 	0
 #define PHOTOINT 	0
 #define POSCTRL 	0
-#define SERIALDR 	0
+#define SERIALDR 	1
 #define SYSCTRL 	1
 #define USBDR 		0
 #define EXAMPLE 	0

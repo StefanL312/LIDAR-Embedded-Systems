@@ -40,9 +40,11 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "lidarDefaultHeader.h"
+// #include "queue.h"
+
 
 /* USER CODE BEGIN 0 */
-
+unsigned char arrayTempoYoricklul[16];
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -51,6 +53,8 @@ extern PCD_HandleTypeDef hpcd_USB_FS;
 extern TIM_HandleTypeDef htim3;
 
 extern uint8_t LED_Register_Bits;
+
+extern QueueHandle_t serialInQueue, serialOutQueue;
 
 
 /******************************************************************************/
@@ -192,6 +196,8 @@ void TIM3_IRQHandler(void)
 /**
 * @brief This function handles USB global Interrupt / USB wake-up interrupt through EXTI line 18.
 */
+
+#if USBDR == 1
 void USB_IRQHandler(void)
 {
   /* USER CODE BEGIN USB_IRQn 0 */
@@ -202,8 +208,10 @@ void USB_IRQHandler(void)
 
   /* USER CODE END USB_IRQn 1 */
 }
+#endif
 
 void USART1_IRQHandler(void){
+    static uint8_t i = 0;
 	BaseType_t xTaskWokenByReceive = pdFALSE;
 	BaseType_t xHigherPriorityTaskWoken;
 	char rxBuffer, txBuffer;
@@ -227,6 +235,10 @@ void USART1_IRQHandler(void){
 	{ 
 		//data available in RDR register. Push it in the serialInQueue
 		rxBuffer = (char) (USART1->RDR);
+        if ( i < 16 ) 
+        {
+            arrayTempoYoricklul[i++] = rxBuffer;
+        }
 		xQueueSendFromISR( serialInQueue, &rxBuffer, &xHigherPriorityTaskWoken );	
 
 		USART1->RQR |= USART_RQR_RXFRQ;		// clear RXNE flag
