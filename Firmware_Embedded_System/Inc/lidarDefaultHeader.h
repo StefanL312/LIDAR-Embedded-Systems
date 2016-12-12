@@ -1,7 +1,7 @@
 #ifndef __DEFAULTLIDARHEADER_H
 #define __DEFAULTLIDARHEADER_H
 
-#include "main.h"
+
 #include "stm32f0xx_hal.h"
 #include "adc.h"
 #include "usart.h"
@@ -35,7 +35,5 @@ extern TaskHandle_t xHBridgeHandle;
 extern TaskHandle_t xEasyStepHandle;
 extern TaskHandle_t xSysCtrlHandle;
 extern TaskHandle_t xPosCtrlHandle;
-
-extern QueueHandle_t serialInQueue, serialOutQueue;
 
 #endif
