@@ -50,3 +50,7 @@ Module.symvers
 Mkfile.old
 dkms.conf
 *.xcl
+*.dni
+*.wsdt
+*.dni
+*.o
