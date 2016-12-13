@@ -28,8 +28,8 @@ extern static Taskhandle_t xPosCtrlHandle;*/
 #define SERIAL_MAX_DATA_LENGTH      10
 #define SERIAL_MAX_FRAME_LENGTH     (SERIAL_MAX_DATA_LENGTH + 6)
 
-#define TESTING_DUMMY_VARIABLES 0
-#define TESTING_SCAN_DATA_SIZE 42
+#define TESTING_DUMMY_VARIABLES 1
+#define TESTING_SCAN_DATA_SIZE 1
 
 /**
  * @brief      { This will control the uart. (send a string byte, by byte for example) }
@@ -135,11 +135,11 @@ void serialDr(void* pvParameters)
 {
 	uint8_t i, j, temp;
     tempScan.scanID = 0x01;
-	tempScan.stepAngle = 5;
+	tempScan.stepAngle = '5';
 	tempScan.numberOfSteps = TESTING_SCAN_DATA_SIZE;
-	tempScan.scansPerAngle = 1;
-	tempScan.scanAveragingTimeWindow = 0;
-	tempScan.ucSensorReadInFormat = 'R';
+	tempScan.scansPerAngle = '1';
+	tempScan.scanAveragingTimeWindow = '0';
+	tempScan.ucSensorReadInFormat = 0x0C;
     uint8_t remainingPakkets;
 	for(i = 0; i < TESTING_SCAN_DATA_SIZE; i++)
 	{
@@ -148,7 +148,7 @@ void serialDr(void* pvParameters)
 	}
 	tempScan.timeFullScan_ms = 3200;
 	tempScan.timeBetweenSteps_ms = 15;
-	unsigned char ucTempData[SERIAL_MAX_DATA_LENGTH];
+	unsigned char ucTempData[SERIAL_MAX_DATA_LENGTH] = {0x00, 0x10, 0x11, 0x12, 0x13};
 
 
     uint8_t angleShortLive = 0;
@@ -160,7 +160,10 @@ void serialDr(void* pvParameters)
     while(1) 
     {
         
+        if (!dSerialSend('Y', ucTempData, 5)) ERRORserialOutQueue = 1;
+
         temp = dFrameConstructor();
+        temp = 0;
         if (temp == 0)
         {
             // No serial data available or time-out
@@ -222,7 +225,8 @@ void serialDr(void* pvParameters)
                             case 'S':
                                 // STOP!!
                                 dLiveScanRequest = 0;
-                                if (!dSerialSend('S', ucTempData, 0)) ERRORserialOutQueue = 1;
+                                // safety stop
+                                if (!dSerialSend('E', ucTempData, 0)) ERRORserialOutQueue = 1;
                                 break;
                                 
                             // Parameter command
@@ -267,8 +271,6 @@ void serialDr(void* pvParameters)
                             // send last scanned data
                             case 'r':
                             case 'R':
-                                if (!dSerialSend('Y', ucTempData, 0)) ERRORserialOutQueue = 1; // send acknowledge command
-
                                 if (TESTING_DUMMY_VARIABLES == 1) 
                                 {
                                     // use dummy variables for testing purposes
@@ -294,7 +296,7 @@ void serialDr(void* pvParameters)
                                         ucTempData[i++] = tempScan.sensorShortData[remainingPakkets-1];
                                         ucTempData[i++] = j + 30;
                                         // ucTempData[i++] = j + 200;
-                                        ucTempData[i++] = tempScan.sensorLongData[remainingPakkets];
+                                        ucTempData[i++] = tempScan.sensorLongData[remainingPakkets-1];
                                         ucTempData[i++] = remainingPakkets;
                                         if (!dSerialSend('R', ucTempData, i)) ERRORserialOutQueue = 1; 
                                     }
@@ -306,6 +308,9 @@ void serialDr(void* pvParameters)
                                     ucTempData[i++] = tempScan.timeBetweenSteps_ms;
                                     ucTempData[i++] = 0;
                                     if (!dSerialSend('R', ucTempData, i)) ERRORserialOutQueue = 1; 
+                                    
+                                    // End of Chain
+                                    if (!dSerialSend('E', ucTempData, i)) ERRORserialOutQueue = 1;
                                     
                                 }
                                 else

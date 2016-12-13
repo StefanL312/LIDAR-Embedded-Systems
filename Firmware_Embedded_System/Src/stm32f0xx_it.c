@@ -45,6 +45,7 @@
 
 /* USER CODE BEGIN 0 */
 unsigned char arrayTempoYoricklul[16];
+unsigned char arrayTempOutYoricklul[30];
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -211,7 +212,7 @@ void USB_IRQHandler(void)
 #endif
 
 void USART1_IRQHandler(void){
-    static uint8_t i = 0;
+    static uint8_t i = 0, j=0;
 	BaseType_t xTaskWokenByReceive = pdFALSE;
 	BaseType_t xHigherPriorityTaskWoken;
 	char rxBuffer, txBuffer;
@@ -221,6 +222,10 @@ void USART1_IRQHandler(void){
 		if(xQueueReceiveFromISR( serialOutQueue, ( void * ) &txBuffer, &xTaskWokenByReceive) == pdTRUE)
 		{	
 			USART1->TDR = (uint8_t) txBuffer;
+      if (j < 30)
+      {
+        arrayTempOutYoricklul[j++] = txBuffer;
+      }
 			
 		}
 		USART1->ICR |= USART_ICR_TCCF;	// clear TC flag
