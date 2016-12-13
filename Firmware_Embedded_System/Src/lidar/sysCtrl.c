@@ -14,9 +14,9 @@
 
 #if SYSCTRL == 1
 
-#define LED_SET_ONE 	0b00000001
-#define LED_SET_TWO 	0b00000010
-#define LED_SET_THREE 	0b00000100
+#define LED_SET_ONE 	0x01
+#define LED_SET_TWO 	0x02
+#define LED_SET_THREE 	0x04
 
 void LED_Control(void* argument);
 void Button_Control(void* argument);
@@ -54,31 +54,31 @@ void Button_Control(void* argument)
 	uint8_t debounce = 0;
 
 	while(1){
-		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6) != GPIO_PIN_SET && (debounce & 0b00000001) != 0b00000000){
-			LED_Register_Bits ^= 0b00000001;
-			Button_Register_Bits |= 0b00000001;
-			debounce &= 0b11111110;
+		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6) != GPIO_PIN_SET && (debounce & 0x01) != 0x00){
+			LED_Register_Bits ^= 0x01;
+			Button_Register_Bits |= 0x01;
+			debounce &= 0xFE;
 		}else if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6) != GPIO_PIN_RESET){
-			debounce |= 0b00000001;
-			Button_Register_Bits &= 0b11111110;
+			debounce |= 0x01;
+			Button_Register_Bits &= 0xFE;
 		}
 		
-		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5) != GPIO_PIN_SET && (debounce & 0b00000010) != 0b00000000){
-			LED_Register_Bits ^= 0b00000010;
-			Button_Register_Bits |= 0b00000010;
-			debounce &= 0b11111101;
+		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5) != GPIO_PIN_SET && (debounce & 0x02) != 0x00){
+			LED_Register_Bits ^= 0x02;
+			Button_Register_Bits |= 0x02;
+			debounce &= 0xFD;
 		}else if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5) != GPIO_PIN_RESET){
-			debounce |= 0b00000010;
-			Button_Register_Bits &= 0b11111101;
+			debounce |= 0x02;
+			Button_Register_Bits &= 0xFD;
 		}
 		
-		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) != GPIO_PIN_SET && (debounce & 0b00000100) != 0b00000000){
-			LED_Register_Bits ^= 0b00000100;
-			Button_Register_Bits |= 0b00000100;
-			debounce &= 0b11111011;
+		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) != GPIO_PIN_SET && (debounce & 0x04) != 0x00){
+			LED_Register_Bits ^= 0x04;
+			Button_Register_Bits |= 0x04;
+			debounce &= 0xFB;
 		}else if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) != GPIO_PIN_RESET){
-			debounce |= 0b00000100;
-			Button_Register_Bits &= 0b11111011;
+			debounce |= 0x04;
+			Button_Register_Bits &= 0xFB;
 		}
 
 		vTaskDelay(100);
