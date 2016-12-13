@@ -101,7 +101,8 @@ SemaphoreHandle_t startPosCTRL; // start scanning, (postion controller)
 
 /* USER CODE BEGIN 0 */
 
-uint8_t LED_Register_Bits = 00001010;
+uint8_t LED_Register_Bits = 0x0A;
+uint8_t Button_Register_Bits = 0x00;
 QueueHandle_t serialInQueue, serialOutQueue;
 
 
