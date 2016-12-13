@@ -8,6 +8,7 @@
 #include "usb_device.h"
 #include "gpio.h"
 
+#include <stdint.h>
 #include <stdio.h>
 
 #include "FreeRTOS.h"
@@ -15,31 +16,16 @@
 #include "queue.h"
 
 /*To use the functions of the .c file set the define to 1*/
-#define SENSDRIVE 	0
+#define SENSDRIV 	0 /* <- opletten */
 #define COMINTER 	0
-#define EASYSTEP 	0
+#define EASYSTEP 	1
 #define HBRIDGE 	0
 #define PHOTOINT 	0
-#define POSCTRL 	0
+#define POSCTRL 	1
 #define SERIALDR 	0
-#define SYSCTRL 	1
+#define SYSCTRL 	0
 #define USBDR 		0
 #define EXAMPLE 	0
-
-
-struct CONTROL_STRUCT{
-	char init;
-	char start;
-};
-
-struct EASYSTEP{
-	int dir;
-	int stepsize;
-	int speed;
-};
-
-void easyStep(struct EASYSTEP easy);	
-void easyInit(struct EASYSTEP easy);
 
 extern TaskHandle_t xUsbDrHandle;
 extern TaskHandle_t xSerialDrHandle;

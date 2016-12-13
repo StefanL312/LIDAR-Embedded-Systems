@@ -22,7 +22,7 @@ void LED_Control(void* argument);
 void Button_Control(void* argument);
 
 extern uint8_t LED_Register_Bits;
-
+extern uint8_t Button_Status;
 /*
 	Set Pinouts for LEDs with status of pointer argument.
 */
@@ -48,6 +48,7 @@ void LED_Control(void* argument)
 
 }
 
+/*Set status for the buttons.*/
 void Button_Control(void* argument)
 {
 	uint8_t debounce = 0;
@@ -55,17 +56,24 @@ void Button_Control(void* argument)
 	while(1){
 		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6) != GPIO_PIN_SET && (debounce & 00000001) != 0){
 			LED_Register_Bits ^= 00000001;
-			debounce = 0;
+			Button_Status ^= 00000001;
+			debounce &= 00000001;
 		}else if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6) != GPIO_PIN_RESET){
-			debounce = 1;
+			debounce |= 00000001;
 		}
 		
-		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5) != GPIO_PIN_SET){
+		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5) != GPIO_PIN_SET && (debounce & 00000010) != 0){
 			LED_Register_Bits ^= 00000010;
+			Button_Status ^= 00000010;
+		}else if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6) != GPIO_PIN_RESET){
+			debounce |= 00000010;
 		}
 		
-		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) != GPIO_PIN_SET){
+		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) != GPIO_PIN_SET && (debounce & 00000100) != 0){
 			LED_Register_Bits ^= 00000100;
+			Button_Status ^= 00000100;
+		}else if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6) != GPIO_PIN_RESET){
+			debounce |= 00000100;
 		}
 
 		vTaskDelay(100);

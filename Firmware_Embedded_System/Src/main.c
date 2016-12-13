@@ -79,7 +79,7 @@ extern void comInter(void* pvParameters);
 extern void sensDriv(void* pvParameters);
 extern void photoInt(void* pvParameters);
 extern void hBridge(void* pvParameters);
-extern void easyStep(void* pvParameters);
+//extern void easyStep(void* pvParameters);
 extern void posCtrl(void* pvParameters);
 
 static TaskHandle_t xUsbDrHandle = NULL;
@@ -94,6 +94,8 @@ static TaskHandle_t xPosCtrlHandle = NULL;
 
 
 // Semaphore Declarations:
+volatile char posCtrl_initFlag = 0; 	// Semaphore alternative for poscontroller
+volatile char posCtrl_startFlag = 0;	// Semaphore alternative for poscontroller
 // SemaphoreHandle_t initPosCTRL; // init postion controller
 // SemaphoreHandle_t startPosCTRL; // start scanning, (postion controller)
 
@@ -101,7 +103,7 @@ static TaskHandle_t xPosCtrlHandle = NULL;
 
 /* USER CODE BEGIN 0 */
 
-uint8_t LED_Register_Bits = 00001010;
+uint8_t LED_Register_Bits = 00001010; // fout pik
 uint8_t Button_Status = 00000000;
 QueueHandle_t serialInQueue, serialOutQueue;
 /* USER CODE END 0 */
@@ -253,25 +255,25 @@ int main(void)
 		#endif
 		
 		#if EASYSTEP == 1
-		xTaskCreate(
-		easyStep,
-		"easyStep",
-		configMINIMAL_STACK_SIZE + 0,
-		(void*) NULL,
-		taskIDLE_PRIORITY + 1,
-		(xTaskHandle*) NULL);
+		/* we dont use a task anymore, we use 'normal' c functions */
+		// xTaskCreate(
+		// easyStep,
+		// "easyStep",
+		// configMINIMAL_STACK_SIZE + 0,
+		// (void*) NULL,
+		// taskIDLE_PRIORITY + 1,
+		// (xTaskHandle*) NULL);
 		#endif
 
 		
 
-		CONTROL_STRUCT posControlStruct = { 0 };
 		
 		#if POSCTRL == 1		
 		if(xTaskCreate(
 					   posCtrl,
 					   "posCtrl",
 					   configMINIMAL_STACK_SIZE + 0,
-					   &posControlStruct,
+					   (void*) NULL,
 					   taskIDLE_PRIORITY + 1,
 					   &xPosCtrlHandle)
 		   != pdPASS ){
