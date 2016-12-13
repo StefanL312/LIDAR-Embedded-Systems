@@ -259,7 +259,9 @@ void serialDr(void* pvParameters)
 //                                {
 //                                    vTaskDelay(100);
 //                                }
-                                if (!dSerialSend('Y', ucTempData, 0)) ERRORserialOutQueue = 1; // send ack when done
+                                vTaskDelay(100);
+                                dScanRequestAvailable = 0;
+                                if (!dSerialSend('E', ucTempData, 0)) ERRORserialOutQueue = 1; // send EOF when done
                                 break;
                             
                             // send last scanned data
