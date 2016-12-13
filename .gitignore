@@ -57,3 +57,4 @@ dkms.conf
 *.wsdt
 *.dni
 *.o
+*.wspos
